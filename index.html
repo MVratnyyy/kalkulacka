@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <title>Matematická Kalkulačka s Grafem</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        .calculator {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        input, select, button {
+            padding: 10px;
+            margin: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        button {
+            cursor: pointer;
+            width: 200px;
+        }
+        #result, #chartContainer {
+            margin-top: 20px;
+            width: 100%;
+        }
+        canvas {
+            max-width: 500px;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <input type="number" id="inputNumber" placeholder="Zadejte číslo">
+        <select id="functionSelect">
+            <option value="factorial">Faktoriál</option>
+            <option value="fibonacci">Fibonacciho posloupnost</option>
+            <option value="cos">Cos</option>
+            <option value="sin">Sin</option>
+            <option value="log">Logaritmus</option>
+        </select>
+        <button onclick="calculateAndDisplay()">Vypočítat</button>
+        <div id="result"></div>
+        <div id="chartContainer">
+            <canvas id="resultChart"></canvas>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+function calculateAndDisplay() {
+    var number = parseInt(document.getElementById("inputNumber").value);
+    var selectedFunction = document.getElementById("functionSelect").value;
+    var result;
+
+    switch (selectedFunction) {
+        case "factorial":
+            result = factorial(number);
+            displayChart("Faktoriál", generateSequenceArray(number, factorial));
+            break;
+        case "fibonacci":
+            result = fibonacci(number);
+            displayChart("Fibonacciho Posloupnost", generateSequenceArray(number, fibonacci));
+            break;
+        case "cos":
+            result = Math.cos(number).toFixed(2);
+            displayChart("Cosinus", generateFunctionArray(number, Math.cos));
+            break;
+        case "sin":
+            result = Math.sin(number).toFixed(2);
+            displayChart("Sinus", generateFunctionArray(number, Math.sin));
+            break;
+        case "log":
+            result = number > 0 ? Math.log(number).toFixed(2) : "Logaritmus je definován pouze pro kladná čísla";
+            displayChart("Logaritmus", generateFunctionArray(number, Math.log));
+            break;
+        default:
+            result = "Neznámá funkce";
+    }
+
+    document.getElementById("result").innerText = "Výsledek: " + result;
+}
+
+function displayChart(label, data) {
+    var ctx = document.getElementById('resultChart').getContext('2d');
+    if (window.myChart) {
+        window.myChart.destroy();
+    }
+    window.myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: data.map((_, index) => index),
+            datasets: [{
+                label: label,
+                data: data,
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+}
+
+function generateSequenceArray(n, sequenceFunction) {
+    return Array.from({length: n}, (_, i) => sequenceFunction(i));
+}
+
+function generateFunctionArray(n, func) {
+    return Array.from({length: n}, (_, i) => func(i).toFixed(2));
+}
+
+function factorial(n) {
+    if (n < 0) return "Nelze vypočítat faktoriál záporného čísla";
+    if (n === 0 || n === 1) return 1;
+    return n * factorial(n - 1);
+}
+
+function fibonacci(n) {
+    if (n < 0) return "Nelze vypočítat Fibonacciho posloupnost pro záporné číslo";
+    if (n === 0) return 0;
+    if (n === 1) return 1;
+    return fibonacci(n - 1) + fibonacci(n - 2);
+}
+
+    </script>
+</body>
+</html>
